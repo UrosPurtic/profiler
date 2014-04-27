@@ -1,0 +1,35 @@
+{
+    "name": "g4/profiler",
+    "description": "g4 application profiler package",
+    "keywords": [
+        "profiler",
+        "debug",
+        "performance"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Dejan Samardzija",
+            "email": "samardzija.dejan@gmail.com"
+        },
+        {
+            "name": "Drasko Gomboc",
+            "email": "drasko.gomboc@gmail.com"
+        },
+        {
+            "name": "Ivan Krickovic",
+            "email": "ivan.krickovic@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {"G4\\Profiler\\": "src/"}
+    },
+    "require-dev": {
+
+    },
+    "require": {
+        "php": ">=5.3.3",
+        "g4/buffer": "*",
+        "g4/log": "*"
+    }
+}
