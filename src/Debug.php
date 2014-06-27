@@ -11,8 +11,10 @@
  */
 
 namespace G4\Profiler;
+
 use G4\Buffer\Buffer;
 use G4\Log\Writer;
+use G4\DI\Container as DI;
 
 class Debug
 {
@@ -20,50 +22,25 @@ class Debug
      * Errors/Exceptions styling
      * @var string
      */
-    const CSS = 'position: relative;background: #ffdfdf;border: 2px solid #ff5050;margin: 5px auto;padding: 10px;
-        min-width: 720px;width: 50%;font: normal 12px "Verdana", monospaced;overflow: auto;z-index: 100;clear: both;';
-
-    /**
-     * Default Redis buffer connection params
-     * @var array
-     */
-    private static $bufferConn = array();
-
-    /**
-     * IP addresses that are allowed to print exception stack trace
-     * @var array
-     */
-    private static $_allowDebugIp = array();
-
-    /**
-     * URL param phrase to trigger quiet mode (do now render exceptions even for allowed IP's)
-     * @var array
-     */
-    private static $_debugTriggerQuiet = 'no-debug';
-
-    /**
-     * URL param phrase to trigger allowed hosts refreshing
-     * @var string
-     */
-    private static $_debugTriggerRefresh = 'debug-refresh-allowed-hosts';
+    private static $cssParameters = [
+        'position: relative',
+        'background: #ffdfdf',
+        'border: 2px solid #ff5050',
+        'margin: 5px auto',
+        'padding: 10px',
+        'min-width: 720px',
+        'width: 50%',
+        'font: normal 12px "Verdana", monospaced',
+        'overflow: auto',
+        'z-index: 100',
+        'clear: both'
+    ];
 
     /**
      * Log file extension
      * @var string
      */
     private static $_extenstion = '.log';
-
-    /**
-     * Default buffer size
-     * @var int
-     */
-    private static $_defaultSize = 100;
-
-    /**
-     * Separator for json parser
-     * @var string
-     */
-    private static $_separator = "##########\n";
 
     /**
      * Flag is ajax or cli request
@@ -109,44 +86,25 @@ class Debug
             $errfile = str_replace(realpath(PATH_ROOT), '', $errfile);
         }
 
-        $err_msg = strtoupper($fn) . ": {$errstr} \n line: {$errline} \n file: {$errfile}";
-
-        // append request data
-        $err_msg .= self::formatRequestData();
+        $err_msg = strtoupper($fn) . ": {$errstr}\nLINE: {$errline}\nFILE: {$errfile}";
 
         // With this setup errors are displayed according to the error_reporting() setting
         // but all errors are logged to file, regardles of
         if(defined('DEBUG') && DEBUG && error_reporting() & $errno) {
             echo self::_skipFormating()
                 ? $err_msg . PHP_EOL
-                : sprintf("<pre><p style='%s'>%s</p></pre>", self::CSS, $err_msg);
+                : sprintf("<pre>\n<p style='%s'>\n%s\n</p>\n</pre>\n\n", self::getFormattedCss(), $err_msg);
         }
 
         // all errors are logged
         if(!empty($fn)) {
-            self::_writeLog($fn . self::$_extenstion, self::formatHeaderWithTime() . $err_msg);
-
-            // write json logs also, so we have it prepared for solr integration
-            $full_error = array(
-                'type'     => $fn,
-                'message'  => $errstr,
-                'code'     => $errno,
-                'line'     => $errline,
-                'file'     => $errfile,
-                'datetime' => date('Y-m-d H:i:s'),
-                'tz'       => date_default_timezone_get(),
-                'context'  => self::formatRequestData(false),
-            );
-
-            $json_msg = phpversion() < '5.4'
-                ? self::$_separator . json_encode($full_error)
-                : self::$_separator . json_encode($full_error, JSON_PRETTY_PRINT);
-            self::_writeLog('____json__' . $fn . self::$_extenstion, $json_msg);
-            // end json
+            self::_writeLog($fn . self::$_extenstion, $err_msg);
+            self::_writeLogJson($fn, $errstr, $errno, $errline, $errfile, debug_backtrace());
         }
 
         // On production setup, if bad errors occurs, send mail with parsed exception and terminate the script
         // DISABLED FOR NOW SINCE IT'S KILLING US AT THE MOMENT!!!!!
+        // SWITCH TO EVENTS!!!!!
 //         if(in_array($errno, $bad)) {
 //             if(defined('DEBUG') && !DEBUG) {
 //                 try {
@@ -166,48 +124,45 @@ class Debug
     /**
      * Handle exceptions
      *
-     * @param  Exception $e
-     * @return void
+     * @param \Exception $e
+     * @param boolean $print
+     * @return boolean
      */
     public static function handlerException(\Exception $e, $print = true)
     {
         $file = 'exception' . self::$_extenstion;
 
-        // parse exception data into string
-        $msg = strip_tags(self::_parseException($e));
+        $msg = self::_parseException($e, self::_skipFormating());
 
-        $out = self::_skipFormating()
-            ? "Exception: {$msg}"
-            : sprintf("<div style='%s'><strong>Exception:</strong><br />%s</div>", self::CSS, nl2br($msg));
+        self::_writeLog($file, $msg);
+        self::_writeLogJson(get_class($e), $e->getMessage(), $e->getCode(), $e->getLine(), $e->getFile(), $e->getTrace());
 
-        self::_writeLog($file, self::formatHeaderWithTime() . $msg);
+        return $print ? print($msg) : true;
+    }
 
-        // write json logs also, so we have it prepared for solr integration
-        $full_error = array(
-            'type'     => get_class($e),
-            'message'  => $e->getMessage(),
-            'code'     => $e->getCode(),
-            'line'     => $e->getLine(),
-            'file'     => $e->getFile(),
-            'trace'    => $e->getTrace(),
+    /**
+     * @return string
+     */
+    private static function getFormattedCss()
+    {
+        return implode('; ', self::$cssParameters);
+    }
+
+    private static function _writeLogJson($type, $msg, $code, $line, $file, $trace)
+    {
+        $fullError = array(
+            'type'     => $type,
+            'message'  => $msg,
+            'code'     => $code,
+            'line'     => $line,
+            'file'     => $file,
+            'trace'    => $trace,
             'datetime' => date('Y-m-d H:i:s'),
             'tz'       => date_default_timezone_get(),
             'context'  => self::formatRequestData(false),
         );
 
-        $json_msg = phpversion() < '5.4'
-            ? self::$_separator . json_encode($full_error)
-            : self::$_separator . json_encode($full_error, JSON_PRETTY_PRINT);
-
-        self::_writeLog('____json__' . $file, $json_msg);
-        // end json
-
-        // override print for allowed IP
-        $print = isset($_SERVER['REMOTE_ADDR']) && in_array($_SERVER['REMOTE_ADDR'], self::$_allowDebugIp) && !isset($_GET[self::$_debugTriggerQuiet])
-            ? true
-            : $print;
-
-        return $print ? print($out) : true;
+        return self::_writeLog('____json__' . $type, json_encode($fullError), false);
     }
 
     /**
@@ -228,24 +183,29 @@ class Debug
      * @param  string $msg
      * @return void
      */
-    private static function _writeLog($filename, $msg)
+    private static function _writeLog($filename, $msg, $addTime = true)
     {
-        if(is_array(self::$bufferConn) && !empty(self::$bufferConn)) {
+        // preppend details
+        if($addTime) {
+            $msg = self::formatHeaderWithTime() . $msg;
+        }
+
+        if(DI::has('BufferOptions')) {
+
+            $options = DI::get('BufferConnectionOptions');
 
             $callback = function($data) use ($filename) {
-                foreach($data as $item) {
-                    Writer::writeLogVerbose($filename, $item);
-                }
+                Writer::writeLogVerbose($filename, implode("\n\n", $data) . "\n\n");
             };
 
-            $size = isset(self::$bufferConn['size'])
-                    && is_int(self::$bufferConn['size'])
-                    && self::$bufferConn['size'] > 0
-                    && self::$bufferConn['size'] < self::$_defaultSize
-                ? self::$bufferConn['size']
-                : self::$_defaultSize;
+            // just to be on safe side, set max size to 500, that is reasonable number
+            $maxSize = 500;
 
-            $buffer = new Buffer($filename, Buffer::ADAPTER_REDIS, $size, $callback, self::$bufferConn);
+            $size = isset($options['size']) && is_int($options['size']) && $options['size'] > 0 && $options['size'] < $maxSize
+                ? $options['size']
+                : $maxSize;
+
+            $buffer = new Buffer($filename, Buffer::ADAPTER_REDIS, $size, $callback, $options);
             $buffer->add($msg);
 
         } else {
@@ -265,36 +225,37 @@ class Debug
      */
     private static function _parseException(\Exception $e, $plain_text = false)
     {
-        $exc_msg   = $e->getMessage();
-        $exc_code  = $e->getCode();
-        $exc_line  = $e->getLine();
-        $exc_file  = basename($e->getFile());
-        $exc_trace = $e->getTrace();
+        $exMsg   = $e->getMessage();
+        $exCode  = $e->getCode();
+        $exLine  = $e->getLine();
+        $exFile  = basename($e->getFile());
+        $exTrace = $e->getTrace();
 
-        $s = "<em style='font-size:larger;'>{$exc_msg}</em> (# {$exc_code})<br /> LINE: <b>#{$exc_line}</b> FILE: <u>{$exc_file}</u>\n\n";
-
-        foreach ($exc_trace as $key => $row) {
-            $s .= '<span class="traceLine">#' . ($key++) . ' ';
+        $trace = '';
+        foreach ($exTrace as $key => $row) {
+            $trace .= '<span class="traceLine">#' . ($key++) . ' ';
 
             if (!empty($row['function'])) {
-                $s .= "<b>";
+                $trace .= "<b>";
                 if (!empty($row['class'])) {
-                    $s .= $row['class'] . $row['type'];
+                    $trace .= $row['class'] . $row['type'];
                 }
 
-                $s .= "{$row['function']}</b>()";
+                $trace .= "{$row['function']}</b>()";
             }
 
             if (!empty($row['file'])) {
-                $s .= " LINE: <b>#{$row['line']}</b> FILE: <u>" . basename($row['file']) . '</u>';
+                $trace .= " | LINE: <b>{$row['line']}</b> | FILE: <u>" . basename($row['file']) . '</u>';
             }
 
-            $s .= '</span>' . PHP_EOL;
+            $trace .= "</span>\n";
         }
 
-        $s .= self::formatRequestData();
+        $msg = "<em style='font-size:larger;'>{$exMsg}</em> (code: {$exCode})<br />\nLINE: <b>{$exLine}</b>\nFILE: <u>{$exFile}</u>";
 
-        return $s;
+        $parsed = sprintf("<pre>\n<p style='%s'>\n<strong>EXCEPTION:</strong><br />%s\n%s\n</p>\n</pre>\n\n", self::getFormattedCss(), $msg, $trace);
+
+        return $plain_text ? str_replace(array("\t"), '', strip_tags($parsed)) : $parsed;
     }
 
     /**
@@ -339,50 +300,14 @@ class Debug
     }
 
     /**
-     * Add IP address that is allowed to print exception stack
-     * @param string $ip IP address
-     * @return int number of added values
-     *
-     * @todo: check if IP is valid
-     * @todo: allow adding of array
-     */
-    public static function addAllowedIp($ip)
-    {
-        return array_push(self::$_allowDebugIp, (string)$ip);
-    }
-
-    /**
-     * Return array of allowed IP's to print exception stack
-     * @return array
-     *
-     * @todo: parsing allowed hosts
-     * @todo: caching
-     * @todo: refreshing trigger
-     */
-    public static function getAllowedIp($ip)
-    {
-        return self::$_allowDebugIp;
-    }
-
-    /**
-     * Add URL host that is allowed to print exception stack
-     * @param string $ip
-     * @return number number of added values
-     *
-     * @todo: not finished
-     */
-    public static function addAllowedHost($ip)
-    {
-        return false;
-    }
-
-    /**
      * Check if request is ajax or cli and skip formating
      *
      * @return bool
      */
     private static function _skipFormating()
     {
+        return false;
+
         if(null !== self::$_isAjaxOrCli) {
             return self::$_isAjaxOrCli;
         }
