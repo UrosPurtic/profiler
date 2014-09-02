@@ -99,7 +99,7 @@ class Debug
         // all errors are logged
         if(!empty($fn)) {
             self::_writeLog($fn . self::$_extenstion, $err_msg);
-            self::_writeLogJson($fn, $errstr, $errno, $errline, $errfile, debug_backtrace());
+            self::_writeLogJson($fn, $errstr, $errno, $errline, $errfile, debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS));
         }
 
         // On production setup, if bad errors occurs, send mail with parsed exception and terminate the script
