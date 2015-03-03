@@ -35,7 +35,7 @@ class Request extends RequestResponseAbstarct
             'id'        => $this->getId(),
             'timestamp' => time(),
             'datetime'  => date('Y-m-d H:i:s'),
-            'ip'        => $_SERVER['REMOTE_ADDR'],
+            'ip'        => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : 'cli',
             'module'    => strtolower($this->getApplication()->getAppNamespace()),
             'service'   => strtolower($this->getApplication()->getRequest()->getResourceName()),
             'method'    => strtolower($this->getApplication()->getRequest()->getMethod()),
