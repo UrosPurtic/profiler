@@ -6,6 +6,11 @@ class Response extends RequestResponseAbstarct
 {
 
     /**
+     * @var \G4\Runner\Profiler
+     */
+    private $profiler;
+
+    /**
      * @return array
      */
     public function getRawData()
@@ -20,6 +25,13 @@ class Response extends RequestResponseAbstarct
             'app_code'     => $this->getApplication()->getResponse()->getApplicationResponseCode(),
             'app_message'  => empty($appMessage) ? null : json_encode($appMessage),
             'elapsed_time' => $this->getElapsedTime(),
+            'profiler'     => json_encode($this->profiler->getProfilerOutput()),
         ];
+    }
+
+    public function setProfiler(\G4\Runner\Profiler $profiler)
+    {
+        $this->profiler = $profiler;
+        return $this;
     }
 }
