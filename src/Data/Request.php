@@ -55,6 +55,8 @@ class Request extends RequestResponseAbstarct
                 $params[$key] = '*****';
             }
         }
+        // quick - add raw body data
+        $params['raw_body'] = trim(file_get_contents('php://input'));
         return $params;
     }
 }
