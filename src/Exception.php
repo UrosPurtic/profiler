@@ -13,10 +13,19 @@ class Exception extends ErrorAbstract
             ->setMessage($exception->getMessage())
             ->setFile($this->filterFilePath($exception->getFile()))
             ->setLine($exception->getLine())
-            ->setTrace($exception->getTrace())
+            ->setTrace($this->getTrace($exception))
             ->thisIsException();
         $this
             ->display()
             ->log();
+    }
+
+    private function getTrace(\Exception $exception)
+    {
+        $e = $exception;
+        while ($e->getPrevious() !== null) {
+            $e = $e->getPrevious();
+        }
+        return $e->getTrace();
     }
 }
