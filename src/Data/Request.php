@@ -40,6 +40,7 @@ class Request extends RequestResponseAbstarct
             'service'   => strtolower($this->getApplication()->getRequest()->getResourceName()),
             'method'    => strtolower($this->getApplication()->getRequest()->getMethod()),
             'params'    => json_encode($this->obfuscateParams($this->getApplication()->getRequest()->getParams())),
+            'hostname'  => gethostname(),
         ];
     }
 
