@@ -15,13 +15,20 @@ class RuntimeLog extends LoggerAbstract
     private $tag;
 
     /**
+     * @var integer
+     */
+    private $index;
+
+    /**
      * @param mixed $var
      * @param string $tag
+     * @param int $index
      */
-    public function __construct($var, $tag)
+    public function __construct($var, $tag, $index)
     {
         $this->loggedData = $var;
         $this->tag        = $tag;
+        $this->index      = $index;
     }
 
     /**
@@ -29,10 +36,9 @@ class RuntimeLog extends LoggerAbstract
      */
     public function getRawData()
     {
-        $index = 2;
         $trace = debug_backtrace();
-        $line = isset($trace[$index]['line']) ? $trace[$index]['line'] : null;
-        $file = isset($trace[$index]['file']) ? $trace[$index]['file'] : null;
+        $line = isset($trace[$this->index]['line']) ? $trace[$this->index]['line'] : null;
+        $file = isset($trace[$this->index]['file']) ? $trace[$this->index]['file'] : null;
 
         return [
             'id'        => $this->getId(),
