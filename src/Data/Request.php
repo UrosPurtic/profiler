@@ -33,7 +33,7 @@ class Request extends RequestResponseAbstarct
     {
         return [
             'id'        => $this->getId(),
-            'timestamp' => time(),
+            'timestamp' => $this->getJsTimestamp(),
             'datetime'  => date('Y-m-d H:i:s'),
             'ip'        => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : 'cli',
             'module'    => strtolower($this->getApplication()->getAppNamespace()),

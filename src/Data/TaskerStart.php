@@ -11,7 +11,7 @@ class TaskerStart extends LoggerAbstract
     {
         return [
             'id'        => $this->getId(),
-            'timestamp' => time(),
+            'timestamp' => $this->getJsTimestamp(),
             'datetime'  => date('Y-m-d H:i:s'),
             'options'   => json_encode($this->options),
             'hostname'  => gethostname(),

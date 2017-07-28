@@ -26,4 +26,13 @@ abstract class LoggerAbstract extends \G4\DataMapper\Domain\DomainAbstract
         $this->startTime = $startTime;
         return $this;
     }
+
+    /**
+     * Return javascript timestamp with milliseconds
+     * @return int
+     */
+    public function getJsTimestamp()
+    {
+        return (int) (microtime(true) * 1000);
+    }
 }

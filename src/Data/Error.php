@@ -15,7 +15,7 @@ class Error extends LoggerAbstract
     {
         return [
             'id'        => md5(uniqid(microtime(), true)),
-            'timestamp' => time(),
+            'timestamp' => $this->getJsTimestamp(),
             'datetime'  => date('Y-m-d H:i:s'),
 
             'code'      => $this->errorData->getCode(),
