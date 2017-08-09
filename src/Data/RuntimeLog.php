@@ -24,7 +24,7 @@ class RuntimeLog extends LoggerAbstract
      * @param string $tag
      * @param int $index
      */
-    public function __construct($var, $tag, $index)
+    public function __construct($var, $tag, $index = 2)
     {
         $this->loggedData = $var;
         $this->tag        = $tag;
