@@ -34,6 +34,9 @@ class Security extends RequestResponseAbstarct
             'app_message' => empty($appMessage) ? null : json_encode($appMessage),
             'hostname'    => gethostname(),
             'profiler'    => json_encode($this->profiler->getProfilerOutput()),
+            'app_key'     => $this->getApplication()->getRequest()->getParam('X-ND-AppKey'),
+            'app_token'   => $this->getApplication()->getRequest()->getParam('X-ND-AppToken'),
+            'authentication' => $this->getApplication()->getRequest()->getParam('X-ND-Authentication'),
         ];
     }
 

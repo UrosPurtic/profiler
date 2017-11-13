@@ -41,6 +41,9 @@ class Request extends RequestResponseAbstarct
             'method'    => strtolower($this->getApplication()->getRequest()->getMethod()),
             'params'    => json_encode($this->obfuscateParams($this->getApplication()->getRequest()->getParams())),
             'hostname'  => gethostname(),
+            'app_key'   => $this->getApplication()->getRequest()->getParam('X-ND-AppKey') ?: null,
+            'app_token' => $this->getApplication()->getRequest()->getParam('X-ND-AppToken') ?: null,
+            'authentication' => $this->getApplication()->getRequest()->getParam('X-ND-Authentication') ?: null,
         ];
     }
 
