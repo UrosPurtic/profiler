@@ -49,6 +49,7 @@ class RuntimeLog extends LoggerAbstract
             'line'      => $line,
             'data'      => var_export($this->loggedData, true),
             'tag'       => $this->tag ? $this->tag : '',
+            'client_ip' => $this->getClientIp(),
         ];
     }
 

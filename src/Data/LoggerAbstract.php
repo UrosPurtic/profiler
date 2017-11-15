@@ -20,6 +20,7 @@ abstract class LoggerAbstract extends \G4\DataMapper\Domain\DomainAbstract
 
     /**
      * @param float $startTime
+     * @return $this
      */
     public function setStartTime($startTime)
     {
@@ -34,5 +35,12 @@ abstract class LoggerAbstract extends \G4\DataMapper\Domain\DomainAbstract
     public function getJsTimestamp()
     {
         return (int) (microtime(true) * 1000);
+    }
+
+    public function getClientIp()
+    {
+        $tools = new \G4\Utility\Tools();
+        $clientIp = $tools->getRealIP(false, ['HTTP_X_ND_CLIENT_IP']);
+        return $clientIp ?: null;
     }
 }

@@ -37,6 +37,7 @@ class Security extends RequestResponseAbstarct
             'app_key'     => $this->getApplication()->getRequest()->getParam('X-ND-AppKey'),
             'app_token'   => $this->getApplication()->getRequest()->getParam('X-ND-AppToken'),
             'authentication' => $this->getApplication()->getRequest()->getParam('X-ND-Authentication'),
+            'client_ip' => $this->getClientIp(),
         ];
     }
 
