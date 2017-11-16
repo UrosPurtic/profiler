@@ -45,6 +45,7 @@ class Request extends RequestResponseAbstarct
             'app_token' => $this->getApplication()->getRequest()->getParam('X-ND-AppToken') ?: null,
             'authentication' => $this->getApplication()->getRequest()->getParam('X-ND-Authentication') ?: null,
             'client_ip' => $this->getClientIp(),
+            'app_name'  => $this->getAppName(),
         ];
     }
 

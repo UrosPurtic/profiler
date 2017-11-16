@@ -38,6 +38,7 @@ class Security extends RequestResponseAbstarct
             'app_token'   => $this->getApplication()->getRequest()->getParam('X-ND-AppToken'),
             'authentication' => $this->getApplication()->getRequest()->getParam('X-ND-Authentication'),
             'client_ip' => $this->getClientIp(),
+            'app_name'  => $this->getAppName(),
         ];
     }
 
