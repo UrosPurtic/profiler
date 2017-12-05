@@ -17,10 +17,11 @@ class Security extends RequestResponseAbstarct
     {
         $resource   = $this->getApplication()->getResponse()->getResponseObject();
         $appMessage = $this->getApplication()->getResponse()->getResponseMessage();
+        $httpCode = $this->getApplication()->getResponse()->getHttpResponseCode();
 
         return [
             'id'          => $this->getId(),
-            'code'        => $this->getApplication()->getResponse()->getHttpResponseCode(),
+            'code'        => $httpCode,
             'message'     => $this->getApplication()->getResponse()->getHttpMessage(),
             'resource'    => empty($resource) ? null : json_encode($resource),
             'timestamp'   => $this->getJsTimestamp(),
@@ -33,7 +34,7 @@ class Security extends RequestResponseAbstarct
             'app_code'    => $this->getApplication()->getResponse()->getApplicationResponseCode(),
             'app_message' => empty($appMessage) ? null : json_encode($appMessage),
             'hostname'    => gethostname(),
-            'profiler'    => json_encode($this->profiler->getProfilerOutput()),
+            'profiler'    => json_encode($this->profiler->getProfilerOutput($httpCode)),
             'app_key'     => $this->getApplication()->getRequest()->getParam('X-ND-AppKey'),
             'app_token'   => $this->getApplication()->getRequest()->getParam('X-ND-AppToken'),
             'authentication' => $this->getApplication()->getRequest()->getParam('X-ND-Authentication'),
