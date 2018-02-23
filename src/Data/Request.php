@@ -56,13 +56,18 @@ class Request extends RequestResponseAbstarct
      */
     private function obfuscateParams(array $params)
     {
+        $rawBodyParams = parse_query(trim(file_get_contents('php://input')));
+
         foreach($this->paramsToObfuscate as $key) {
             if (isset($params[$key])) {
                 $params[$key] = '*****';
             }
+            if (is_array($rawBodyParams) && array_key_exists($key, $rawBodyParams)) {
+                $rawBodyParams[$key] = '_obfuscated_';
+            }
         }
-        // quick - add raw body data
-        $params['raw_body'] = trim(file_get_contents('php://input'));
+
+        $params['raw_body'] = http_build_query($rawBodyParams);
         return $params;
     }
 }
