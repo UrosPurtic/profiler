@@ -56,7 +56,7 @@ class Request extends RequestResponseAbstarct
      */
     private function obfuscateParams(array $params)
     {
-        $rawBodyParams = parse_query(trim(file_get_contents('php://input')));
+        parse_str(trim(file_get_contents('php://input')), $rawBodyParams);
 
         foreach($this->paramsToObfuscate as $key) {
             if (isset($params[$key])) {
