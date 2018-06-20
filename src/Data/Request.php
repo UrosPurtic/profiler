@@ -46,6 +46,10 @@ class Request extends RequestResponseAbstarct
             'authentication' => $this->getApplication()->getRequest()->getParam('X-ND-Authentication') ?: null,
             'client_ip' => $this->getClientIp(),
             'app_name'  => $this->getAppName(),
+            'server_http_host'       => isset($_SERVER['HTTP_HOST'])       ? $_SERVER['HTTP_HOST']       : '',
+            'server_request_uri'     => isset($_SERVER['REQUEST_URI'])     ? $_SERVER['REQUEST_URI']     : '',
+            'server_request_method'  => isset($_SERVER['REQUEST_METHOD'])  ? $_SERVER['REQUEST_METHOD']  : '',
+            'server_http_user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
         ];
     }
 
