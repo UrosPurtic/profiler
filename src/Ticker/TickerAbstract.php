@@ -28,7 +28,9 @@ abstract class TickerAbstract implements TickerInterface
      */
     public function getTotalNumQueries()
     {
-        return count($this->data);
+        return $this->data === null
+            ? 0
+            : count($this->data);
     }
 
     /**
