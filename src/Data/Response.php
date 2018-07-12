@@ -17,15 +17,17 @@ class Response extends RequestResponseAbstarct
     {
         $resource   = $this->getApplication()->getResponse()->getResponseObject();
         $appMessage = $this->getApplication()->getResponse()->getResponseMessage();
+        $httpCode = $this->getApplication()->getResponse()->getHttpResponseCode();
+
         return [
             'id'           => $this->getId(),
-            'code'         => $this->getApplication()->getResponse()->getHttpResponseCode(),
+            'code'         => $httpCode,
             'message'      => $this->getApplication()->getResponse()->getHttpMessage(),
             'resource'     => empty($resource) ? null : json_encode($resource),
             'app_code'     => $this->getApplication()->getResponse()->getApplicationResponseCode(),
             'app_message'  => empty($appMessage) ? null : json_encode($appMessage),
             'elapsed_time' => $this->getElapsedTime(),
-            'profiler'     => json_encode($this->profiler->getProfilerOutput()),
+            'profiler'     => json_encode($this->profiler->getProfilerOutput($httpCode)),
         ];
     }
 
