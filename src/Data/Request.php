@@ -50,6 +50,7 @@ class Request extends RequestResponseAbstarct
             'server_request_uri'     => isset($_SERVER['REQUEST_URI'])     ? $_SERVER['REQUEST_URI']     : '',
             'server_request_method'  => isset($_SERVER['REQUEST_METHOD'])  ? $_SERVER['REQUEST_METHOD']  : '',
             'server_http_user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
+            'headers' => json_encode($this->getXNDParameters()),
         ];
     }
 

@@ -51,6 +51,7 @@ class RuntimeLog extends LoggerAbstract
             'tag'       => $this->tag ? $this->tag : '',
             'client_ip' => $this->getClientIp(),
             'app_name'  => $this->getAppName(),
+            'headers'   => json_encode($this->getXNDParameters()),
         ];
     }
 

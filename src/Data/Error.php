@@ -31,6 +31,7 @@ class Error extends LoggerAbstract
             'ip'        => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR']: 'cli',
             'client_ip' => $this->getClientIp(),
             'app_name'  => $this->getAppName(),
+            'headers'   => json_encode($this->getXNDParameters()),
         ];
     }
 
