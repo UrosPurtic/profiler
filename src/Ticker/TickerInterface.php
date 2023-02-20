@@ -8,4 +8,6 @@ interface TickerInterface
     public function getFormatted();
 
     public function getName();
+
+    public function getType();
 }
