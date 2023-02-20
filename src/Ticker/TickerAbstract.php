@@ -33,6 +33,12 @@ abstract class TickerAbstract implements TickerInterface
             : count($this->data);
     }
 
+    public function clear()
+    {
+        $this->data = null;
+        $this->totalElapsedTime = 0;
+    }
+
     /**
      * @param string $uniqueId
      * @return \G4\Profiler\Ticker\TickerAbstract
