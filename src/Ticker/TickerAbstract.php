@@ -84,9 +84,10 @@ abstract class TickerAbstract implements TickerInterface
      */
     public function getQueries()
     {
-        if (count($this->getData()) > 0) {
-            foreach($this->getData() as $data) {
-                $queries[] = $data->getFormatted();
+        $tickerData = $this->getData();
+        if (count($tickerData) > 0) {
+            foreach($tickerData as $key => $data) {
+                $queries[$key] = $data->getFormatted();
             }
         }
         return isset($queries) ? $queries : [];
