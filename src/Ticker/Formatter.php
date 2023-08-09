@@ -40,9 +40,9 @@ class Formatter
     public function getUniqId()
     {
         if ($this->uniqid === null) {
-            $this->uniqid = uniqid(null, true);
+            $this->uniqid = microtime(true);
         }
-        return $this->uniqid;
+        return sprintf("%.5f", $this->uniqid);
     }
 
     /**
